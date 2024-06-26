@@ -1,9 +1,9 @@
 <div>
-    {{#if actor.condition}}<b>{{actor.name}}</b> is <b>{{actor.condition}}</b>.</br>{{/if}}
+    {{#if actor.condition}}<b>{{actor.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{actor.condition}}</b>.</br>{{/if}}
     {{#each targets as |target|}}
-    <b>{{target.name}}</b> is <b>{{target.condition}}</b> to attacker.</br>
+    <b>{{target.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{target.condition}}</b> {{localize "pf2-flat-check.attacker"}}</br>
     {{/each}}
-    Flat Check DC is <b>{{flatCheckDC}}</b>.
+    {{localize "pf2-flat-check.FlatDC"}} <b>{{flatCheckDC}}</b>.
 </div>
 <div class="dice-roll">
 <div class="dice-result {{flatCheckRollResultClass}}">

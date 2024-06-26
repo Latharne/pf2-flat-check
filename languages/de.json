@@ -1,0 +1,17 @@
+{
+    "pf2-flat-check":{
+        "settings":{
+            "hideRollValue":{
+                "name": "Zeige 'Erfolg' or 'Fehlschlag' Text",
+                "hint": "Zeigt einen Text an, ob eine Fähigkeit erfolgreich zum tragen kommt oder auf Grund des Prüfwurfs fehlschlägt."
+            }
+        },
+        "results":{
+            "success":"Erfolg",
+            "failure":"Fehlschlag"
+        },
+        "FlatDC":"Der Prüfwurf SG ist",
+        "attacker":"zum Angreifer.",
+        "is":"ist"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "pf2-flat-check":{
+        "settings":{
+            "hideRollValue":{
+                "name": "Show 'Success' or 'Failure' Text",
+                "hint": "Shows a text indicating whether an ability is successful or fails due to the flatcheck."
+            }
+        },
+        "results":{
+            "success":"Success",
+            "failure":"Failure"
+        },
+        "FlatDC":"Flat Check DC is",
+        "attacker":"to attacker.",
+        "is":"is"
+    }
+}

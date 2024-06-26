@@ -3,11 +3,17 @@
     "id": "pf2-flat-check",
     "title": "PF2e Flat Check",
     "description": "PF2e Flat Check implements automatic Flat Checks when characters make weapon strikes or cast spells.",
-    "license": "https://github.com/jessev14/pf2-flat-check/blob/main/license",
-    "readme": "https://github.com/jessev14/pf2-flat-check/blob/main/README.md",
-    "bugs": "https://github.com/jessev14/pf2-flat-check/issues",
-    "author": "enso#0361",
+    "license": "https://github.com/Latharne/pf2-flat-check/blob/main/license",
+    "readme": "https://github.com/Latharne/pf2-flat-check/blob/main/README.md",
+    "bugs": "https://github.com/Latharne/pf2-flat-check/issues",
+    "author": ".liathan",
     "authors": [
+        {
+            "name": "Liathan",
+            "url": "https://github.com/Latharne/",
+            "discord": ".liathan",
+            "flags": {}
+          },
         {
             "name": "enso#0361",
             "url": "https://github.com/jessev14/",
@@ -15,12 +21,12 @@
             "flags": {}
         }
     ],
-    "version": "1.7.0",
+    "version": "#{VERSION}#",
     "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "10",
+    "compatibleCoreVersion": "11",
     "compatibility": {
         "minimum": "9",
-        "verified": "11.302",
+        "verified": "11.315",
         "maximum": "11"
     },
     "relationships": {
@@ -31,7 +37,7 @@
                 "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
                 "compatibility": {
                     "minimum": "3.13.5",
-                    "verified": "5.0.1"
+                    "verified": "5.16.1"
                 }
             }
         ]
@@ -40,11 +46,19 @@
         "./scripts/main.js"
     ],
     "styles": [
-        "./styles/style.css"
+        "./styles/pf2-flat-check.css"
     ],
-    "languages": [
-    ],
-    "url": "",
-    "manifest": "",
-    "download": ""
+    "languages": [{
+    "lang":"en",
+    "name":"english",
+    "path":"languages/en.json"
+  },
+{
+  "lang":"de",
+  "name":"Deutsch",
+  "path":"languages/de.json"
+}],
+    "url": "#{URL}#",
+    "manifest": "#{MANIFEST}#",
+    "download": "#{DOWNLOAD}#"
 }
