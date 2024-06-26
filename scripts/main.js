@@ -25,16 +25,10 @@ Hooks.once("init", () => {
 
 Hooks.on("createChatMessage", async (message, data, userID) => {
   if (game.user.id !== game.users.find((u) => u.isGM && u.active).id) return;
-  const v10 = !foundry.utils.isNewerVersion(
-    "10.0",
-    game.version ?? game.data.version
-  );
 
   const { token, actor } = message;
   let { item } = message;
-  const originUUID = v10
-    ? message.flags.pf2e?.origin?.uuid
-    : message.data.flags.pf2e?.origin?.uuid;
+  const originUUID = message.flags.pf2e?.origin?.uuid;
   if (
     !item &&
     !message.isDamageRoll &&
@@ -43,17 +37,10 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   ) {
     const actionIds = originUUID.match(/Item.(\w+)/);
     if (actionIds && actionIds[1]) {
-      if (v10) {
         item =
           actor?.system?.actions
             .filter((atk) => atk?.type === "strike")
             .filter((a) => a.item.id === actionIds[1]) || null;
-      } else {
-        item =
-          actor?.data.data?.actions
-            .filter((atk) => atk?.type === "strike")
-            .filter((a) => a.item.id === actionIds[1]) || null;
-      }
     }
   }
   if (!actor || !item) return;
@@ -114,9 +101,10 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
 
   if (!templateData.actor.condition && !templateData.targets.length) return;
 
-  const flatCheckRoll = await new Roll("1d20").roll({ async: true });
+  const flatCheckRoll = new Roll("1d20");
+  await flatCheckRoll.evaluate();
   if (game.dice3d)
-    await game.dice3d.showForRoll(flatCheckRoll, game.users.get(userID), true);
+    await game.dice3d.showForRoll(flatCheckRoll.result, game.users.get(userID), true);
 
   templateData.flatCheckRollResult = !game.settings.get(
     moduleId,

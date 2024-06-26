@@ -13,21 +13,15 @@
             "url": "https://github.com/Latharne/",
             "discord": ".liathan",
             "flags": {}
-          },
-        {
-            "name": "enso#0361",
-            "url": "https://github.com/jessev14/",
-            "discord": "enso#0361",
-            "flags": {}
-        }
+          }
     ],
     "version": "#{VERSION}#",
-    "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "11",
+    "minimumCoreVersion": "12",
+    "compatibleCoreVersion": "12",
     "compatibility": {
-        "minimum": "9",
-        "verified": "11.315",
-        "maximum": "11"
+        "minimum": "12",
+        "verified": "12",
+        "maximum": "12"
     },
     "relationships": {
         "systems": [
@@ -36,8 +30,8 @@
                 "type": "system",
                 "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
                 "compatibility": {
-                    "minimum": "3.13.5",
-                    "verified": "5.16.1"
+                    "minimum": "6.0.2",
+                    "verified": "6.0.4"
                 }
             }
         ]
