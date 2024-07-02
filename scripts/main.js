@@ -52,7 +52,6 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   if (item.type === "spell" && message.isRoll) return;
 
   const templateData = {};
-  console.log({ traits: item.system.traits.value });
   const { conditionName, DC } = getCondition(
     token,
     null,
@@ -104,7 +103,7 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   const flatCheckRoll = new Roll("1d20");
   await flatCheckRoll.evaluate();
   if (game.dice3d)
-    await game.dice3d.showForRoll(flatCheckRoll.result, game.users.get(userID), true);
+    await game.dice3d.showForRoll(flatCheckRoll, game.users.get(userID), true);
 
   templateData.flatCheckRollResult = !game.settings.get(
     moduleId,
