@@ -27,7 +27,7 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   if (game.user.id !== game.users.find((u) => u.isGM && u.active).id) return;
 
   const actor = message?.actor ?? game.actors.get(message?.speaker?.actor);
-  const token = message?.tokenn ?? game.canvas.tokens.get(message?.speaker?.token);
+  const token = message?.token ?? game.canvas.tokens.get(message?.speaker?.token);
   let { item } = message;
   const originUUID = message.flags.pf2e?.origin?.uuid;
   if (
