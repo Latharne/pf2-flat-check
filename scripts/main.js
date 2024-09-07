@@ -184,7 +184,7 @@ function getCondition(token, target, isSpell, traits) {
         const isStupefy = c.slug === "stupefied";
         if (isStupefy) return true;
       }
-      if (["hidden", "concealed", "undetected"].includes(c.slug) && usePf2ePerceptionInstead()) return false;
+      if (["hidden", "concealed", "undetected", "dazzled"].includes(c.slug) && usePf2ePerceptionInstead()) return false;
       return Object.keys(conditionMap).includes(c.slug);
     })
     .map((c) => c.slug)
