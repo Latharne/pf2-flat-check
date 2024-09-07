@@ -38,10 +38,10 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   ) {
     const actionIds = originUUID.match(/Item.(\w+)/);
     if (actionIds && actionIds[1]) {
-        item =
-          actor?.system?.actions
-            .filter((atk) => atk?.type === "strike")
-            .filter((a) => a.item.id === actionIds[1]) || null;
+      item =
+        actor?.system?.actions
+          .filter((atk) => atk?.type === "strike")
+          .filter((a) => a.item.id === actionIds[1]) || null;
     }
   }
   if (!actor || !item) return;
@@ -112,8 +112,8 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   )
     ? flatCheckRoll.result
     : flatCheckRoll.result < templateData.flatCheckDC
-    ? game.i18n.localize("pf2-flat-check.results.failure")
-    : game.i18n.localize("pf2-flat-check.results.success");
+      ? game.i18n.localize("pf2-flat-check.results.failure")
+      : game.i18n.localize("pf2-flat-check.results.success");
 
   templateData.flatCheckRollResultClass =
     flatCheckRoll.result < templateData.flatCheckDC
@@ -189,9 +189,9 @@ function getCondition(token, target, isSpell, traits) {
     .map((c) => c.slug)
     .sort();
 
-  if (!checkingAttacker && attackerBlinded && !conditions.includes("hidden"))
+  if (!checkingAttacker && attackerBlinded && !conditions.includes("hidden") && !usePf2ePerceptionInstead())
     conditions.push("hidden");
-  if (!checkingAttacker && attackerDazzled && !conditions.includes("concealed"))
+  if (!checkingAttacker && attackerDazzled && !conditions.includes("concealed") && !usePf2ePerceptionInstead())
     conditions.push("concealed");
   // Get darkness conditions
   if (!checkingAttacker && game.modules.get("pf2e-darkness-effects")?.active) {
@@ -296,4 +296,8 @@ function getCondition(token, target, isSpell, traits) {
     conditionName,
     DC,
   };
+}
+
+function usePf2ePerceptionInstead() {
+  return game.modules.get("pf2e-perception")?.active && ['roll', 'cancel'].includes(game.settings.get("pf2e-perception", "flat-check"))
 }
