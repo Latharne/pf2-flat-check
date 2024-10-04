@@ -51,6 +51,7 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   )
     return;
   if (item.type === "spell" && message.isRoll) return;
+  if (message.isDamageTakenRoll) return;
 
   const templateData = {};
   const { conditionName, DC } = getCondition(
