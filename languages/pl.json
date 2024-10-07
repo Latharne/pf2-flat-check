@@ -1,0 +1,17 @@
+{
+    "pf2-flat-check":{
+        "settings":{
+            "hideRollValue":{
+                "name": "Pokaż tekst „Sukces” lub „Porażka”",
+                "hint": "Pokazuje tekst wskazujący, czy umiejętność zakończyła się sukcesem, czy porażką z powodu płaskiego testu."
+            }
+        },
+        "results":{
+            "success":"Sukces",
+            "failure":"Porażka"
+        },
+        "FlatDC":"ST Płaskiego testu to",
+        "attacker":"wobec atakującego.",
+        "is":"jest"
+    }
+}
