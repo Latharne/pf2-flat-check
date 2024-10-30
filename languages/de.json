@@ -4,6 +4,18 @@
             "hideRollValue":{
                 "name": "Zeige 'Erfolg' or 'Fehlschlag' Text",
                 "hint": "Zeigt einen Text an, ob eine Fähigkeit erfolgreich zum tragen kommt oder auf Grund des Prüfwurfs fehlschlägt."
+            },
+            "ignoreConcealed":{
+                "name": "Ignoriere den Zustand Verborgen",
+                "hint": "Falls diese Option ausgewählt wurde, ignoriert das Modul die Konditionen 'Geblendet' und 'Verborgen'."
+            },
+            "ignoreGrabbed":{
+                "name": "Ignoriere den Zustand Ergriffen",
+                "hint": "Falls diese Option ausgewählt wurde, ignoriert das Modul die Konditionen 'Ergriffen'."
+            },
+            "ignoreInvisibility":{
+                "name": "Ignoriere Verborgen Zustände",
+                "hint": "Falls diese Option ausgewählt wurde, ignoriert das Modul die folgenden Zustände: 'Verborgen', 'Unsichtbar', 'Unentdeckt' and 'Blind'."
             }
         },
         "results":{

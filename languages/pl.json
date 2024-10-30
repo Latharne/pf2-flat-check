@@ -4,6 +4,18 @@
             "hideRollValue":{
                 "name": "Pokaż tekst „Sukces” lub „Porażka”",
                 "hint": "Pokazuje tekst wskazujący, czy umiejętność zakończyła się sukcesem, czy porażką z powodu płaskiego testu."
+            },
+            "ignoreConcealed": {
+                "name": "Ignoruj stan 'Ukryty'",
+                "hint": "Jeśli ta opcja jest wybrana, moduł ignoruje stany 'Oślepiony' i 'Ukryty'."
+            },
+            "ignoreGrabbed": {
+                "name": "Ignoruj stan 'Złapany'",
+                "hint": "Jeśli ta opcja jest wybrana, moduł ignoruje stan 'Złapany'."
+            },
+            "ignoreInvisibility": {
+                "name": "Ignoruj stan Niewidzialności",
+                "hint": "Jeśli ta opcja jest wybrana, moduł ignoruje następujące stany: 'Ukryty', 'Niewidzialny', 'Niezauważony' i 'Oślepiony'."
             }
         },
         "results":{

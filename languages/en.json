@@ -4,6 +4,18 @@
             "hideRollValue":{
                 "name": "Show 'Success' or 'Failure' Text",
                 "hint": "Shows a text indicating whether an ability is successful or fails due to the flatcheck."
+            },
+            "ignoreConcealed":{
+                "name": "Ignore the concealed condition",
+                "hint": "If checked, the module ignores the dazzled and concealed conditions."
+            },
+            "ignoreGrabbed":{
+                "name": "Ignore the grabbed condition",
+                "hint": "If checked, the module ignores the grabbed condition."
+            },
+            "ignoreInvisibility":{
+                "name": "Ignore the condition with hidden effects",
+                "hint": "If checked, the module ignores the the following conditions: hidden, invisible, undetected and blinded."
             }
         },
         "results":{

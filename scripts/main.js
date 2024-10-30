@@ -21,6 +21,30 @@ Hooks.once("init", () => {
     type: Boolean,
     default: false,
   });
+  game.settings.register(moduleId, "ignoreConcealed", {
+    name: `pf2-flat-check.settings.ignoreConcealed.name`,
+    hint: `pf2-flat-check.settings.ignoreConcealed.hint`,
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+  game.settings.register(moduleId, "ignoreGrabbed", {
+    name: `pf2-flat-check.settings.ignoreGrabbed.name`,
+    hint: `pf2-flat-check.settings.ignoreGrabbed.hint`,
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+  game.settings.register(moduleId, "ignoreInvisibility", {
+    name: `pf2-flat-check.settings.ignoreInvisibility.name`,
+    hint: `pf2-flat-check.settings.ignoreInvisibility.hint`,
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
 });
 
 Hooks.on("createChatMessage", async (message, data, userID) => {
@@ -153,7 +177,10 @@ function distanceBetween(token0, token1) {
 }
 
 function getCondition(token, target, isSpell, traits) {
-  console.log({ token, target, isSpell, traits, actor: token.actor.items });
+  //console.log({ token, target, isSpell, traits, actor: token.actor.items });
+  const ignoreConcealed = game.settings.get(moduleId,"ignoreConcealed");
+  const ignoreGrabbed = game.settings.get(moduleId,"ignoreGrabbed");
+  const ignoreInvisibility = game.settings.get(moduleId,"ignoreInvisibility");
   const checkingAttacker = target === null;
   const currentActor = checkingAttacker ? token?.actor : target?.actor;
   const conditionMap = checkingAttacker
@@ -293,11 +320,21 @@ function getCondition(token, target, isSpell, traits) {
     condition && condition.length > 0
       ? condition.charAt(0).toUpperCase() + condition.slice(1)
       : condition;
-  console.log({ conditionName, DC });
-  return {
+
+  if (((conditionName === "Concealed"||conditionName === "Dazzled") && !ignoreConcealed) ||
+       ((conditionName === "Grabbed") && !ignoreGrabbed) ||
+       ((conditionName === "Hidden") && !ignoreInvisibility))
+  {
+    //console.log({ conditionName, DC });
+    return {
     conditionName,
     DC,
   };
+  }
+  else
+  {
+    return{};
+  }
 }
 
 function usePf2ePerceptionInstead() {
