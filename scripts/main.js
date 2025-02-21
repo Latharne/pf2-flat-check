@@ -321,19 +321,16 @@ function getCondition(token, target, isSpell, traits) {
       ? condition.charAt(0).toUpperCase() + condition.slice(1)
       : condition;
 
-  if (((conditionName === "Concealed"||conditionName === "Dazzled") && !ignoreConcealed) ||
-       ((conditionName === "Grabbed") && !ignoreGrabbed) ||
-       ((conditionName === "Hidden") && !ignoreInvisibility))
+  if (((conditionName === "Concealed" || conditionName === "Dazzled") && ignoreConcealed) ||
+       ((conditionName === "Grabbed") && ignoreGrabbed) ||
+       ((conditionName === "Hidden" || conditionName === "Invisible" ) && ignoreInvisibility))
   {
-    //console.log({ conditionName, DC });
     return {
-    conditionName,
-    DC,
   };
   }
   else
   {
-    return{};
+    return{conditionName, DC, };
   }
 }
 
