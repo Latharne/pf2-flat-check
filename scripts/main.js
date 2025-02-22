@@ -54,6 +54,16 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   const token = message?.token ?? game.canvas.tokens.get(message?.speaker?.token);
   let { item } = message;
   const originUUID = message.flags.pf2e?.origin?.uuid;
+  console.log(message);
+  //Domäne prüfen, falls Schaden, dann Abbruch
+  const domains = message.flags?.pf2e?.context?.domains || [];
+  if (domains.includes("damage") || domains.includes("attack-damage") || domains.includes("damage-received")) {
+    return;
+}
+//Falls der Wurf persistenten Schaden enthält dann Abbruch
+if (message.rolls?.some(roll => roll.options?.evaluatePersistent) || (message.isDamageTakenRoll)) {
+  return;
+}
   if (
     !item &&
     !message.isDamageRoll &&
@@ -75,14 +85,27 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   )
     return;
   if (item.type === "spell" && message.isRoll) return;
-  if (message.isDamageTakenRoll) return;
 
+  const isPassiveAbility = message.content.includes('icons/actions/Passive.webp');
+  const isReaction = message.content.includes('icons/actions/Reaction.webp');
+
+  if (isPassiveAbility || isReaction) {
+    return;
+}
+  let areaAttack = false;
+  const rollOptions = message.flags?.pf2e?.origin?.rollOptions || [];
+  if (rollOptions.includes("area-effect") || rollOptions.includes("area-damage") || 
+      rollOptions.includes("aura") || message.content.includes('data-pf2-effect-area') ||
+      message.flags?.pf2e?.context?.type === "self-effect") {
+    areaAttack = true;
+  }
   const templateData = {};
   const { conditionName, DC } = getCondition(
     token,
     null,
     item.type === "spell",
-    item.system.traits.value
+    item.system.traits.value,
+    areaAttack
   );
   templateData.flatCheckDC = DC ?? 0;
   templateData.actor = {
@@ -99,7 +122,8 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
       token,
       target,
       item.type === "spell",
-      null
+      null,
+      areaAttack
     );
     if (!conditionName) continue;
 
@@ -176,7 +200,7 @@ function distanceBetween(token0, token1) {
   );
 }
 
-function getCondition(token, target, isSpell, traits) {
+function getCondition(token, target, isSpell, traits, areaAttack) {
   //console.log({ token, target, isSpell, traits, actor: token.actor.items });
   const ignoreConcealed = game.settings.get(moduleId,"ignoreConcealed");
   const ignoreGrabbed = game.settings.get(moduleId,"ignoreGrabbed");
@@ -322,9 +346,11 @@ function getCondition(token, target, isSpell, traits) {
       : condition;
 
   if (((conditionName === "Concealed" || conditionName === "Dazzled") && ignoreConcealed) ||
-       ((conditionName === "Grabbed") && ignoreGrabbed) ||
-       ((conditionName === "Hidden" || conditionName === "Invisible" ) && ignoreInvisibility))
+      ((conditionName === "Grabbed") && ignoreGrabbed) ||
+      ((conditionName === "Hidden" || conditionName === "Invisible") && ignoreInvisibility) ||
+      ((conditionName === "Hidden" || conditionName === "Concealed" || conditionName === "Dazzled" || conditionName === "Invisible") && areaAttack))
   {
+    //console.log({ conditionName, DC });
     return {
   };
   }
