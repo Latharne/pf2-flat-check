@@ -16,6 +16,14 @@
             "ignoreInvisibility":{
                 "name": "Ignore the condition with hidden effects",
                 "hint": "If checked, the module ignores the the following conditions: hidden, invisible, undetected and blinded."
+            },
+            "ignorePassiveActions":{
+                "name": "Surpress flatchecks of passive actions",
+                "hint": "If checked, the module ignores the test from actions with the pf2e passive action symbol."
+            },
+            "ignoreReactionActions":{
+                "name": "Surpress flatchecks of reaction actions",
+                "hint": "If checked, the module ignores the test from actions with the pf2e reaction action symbol."
             }
         },
         "results":{

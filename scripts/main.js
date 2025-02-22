@@ -45,6 +45,22 @@ Hooks.once("init", () => {
     type: Boolean,
     default: false,
   });
+  game.settings.register(moduleId, "ignorePassiveActions", {
+    name: `pf2-flat-check.settings.ignorePassiveActions.name`,
+    hint: `pf2-flat-check.settings.ignorePassiveActions.hint`,
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+  game.settings.register(moduleId, "ignoreReactionActions", {
+    name: `pf2-flat-check.settings.ignoreReactionActions.name`,
+    hint: `pf2-flat-check.settings.ignoreReactionActions.hint`,
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 });
 
 Hooks.on("createChatMessage", async (message, data, userID) => {
@@ -54,7 +70,7 @@ Hooks.on("createChatMessage", async (message, data, userID) => {
   const token = message?.token ?? game.canvas.tokens.get(message?.speaker?.token);
   let { item } = message;
   const originUUID = message.flags.pf2e?.origin?.uuid;
-  console.log(message);
+  //console.log(message);
   //Domäne prüfen, falls Schaden, dann Abbruch
   const domains = message.flags?.pf2e?.context?.domains || [];
   if (domains.includes("damage") || domains.includes("attack-damage") || domains.includes("damage-received")) {
@@ -86,10 +102,12 @@ if (message.rolls?.some(roll => roll.options?.evaluatePersistent) || (message.is
     return;
   if (item.type === "spell" && message.isRoll) return;
 
+  const ignorePassiveActions = game.settings.get(moduleId,"ignorePassiveActions");
+  const ignoreReactionActions = game.settings.get(moduleId,"ignoreReactionActions");
   const isPassiveAbility = message.content.includes('icons/actions/Passive.webp');
   const isReaction = message.content.includes('icons/actions/Reaction.webp');
 
-  if (isPassiveAbility || isReaction) {
+  if ((isPassiveAbility && ignorePassiveActions) || (isReaction && ignoreReactionActions)) {
     return;
 }
   let areaAttack = false;
@@ -309,7 +327,7 @@ function getCondition(token, target, isSpell, traits, areaAttack) {
           }
         }
       }
-      console.log("reduce");
+      //console.log("reduce");
       return conditionMap[acc] > currentDC ? acc : current;
     });
   }
@@ -345,10 +363,9 @@ function getCondition(token, target, isSpell, traits, areaAttack) {
       ? condition.charAt(0).toUpperCase() + condition.slice(1)
       : condition;
 
-  if (((conditionName === "Concealed" || conditionName === "Dazzled") && ignoreConcealed) ||
-      ((conditionName === "Grabbed") && ignoreGrabbed) ||
-      ((conditionName === "Hidden" || conditionName === "Invisible") && ignoreInvisibility) ||
-      ((conditionName === "Hidden" || conditionName === "Concealed" || conditionName === "Dazzled" || conditionName === "Invisible") && areaAttack))
+  if (((conditionName === "Concealed" || conditionName === "Dazzled") && (ignoreConcealed || areaAttack) ||
+      ((conditionName === "Hidden" || conditionName === "Invisible") && (ignoreInvisibility || areaAttack)) ||
+      ((conditionName === "Grabbed") && ignoreGrabbed)))
   {
     //console.log({ conditionName, DC });
     return {

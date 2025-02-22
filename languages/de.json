@@ -16,6 +16,14 @@
             "ignoreInvisibility":{
                 "name": "Ignoriere Verborgen Zustände",
                 "hint": "Falls diese Option ausgewählt wurde, ignoriert das Modul die folgenden Zustände: 'Verborgen', 'Unsichtbar', 'Unentdeckt' and 'Blind'."
+            },
+            "ignorePassiveActions":{
+                "name": "Unterdrücke Prüfung bei Passiven Fähigkeiten",
+                "hint": "Wenn ausgewählt, dass prüft das Modul ob die Aktion das Bild von einer passiven Fähigkeit hat und unterdrückt dann die Abfrage."
+            },
+            "ignoreReactionActions":{
+                "name": "Unterdrücke Prüfung bei Reaktionen Fähigkeiten",
+                "hint": "Wenn ausgewählt, dass prüft das Modul ob die Aktion das Bild von einer Reaktion hat und unterdrückt dann die Abfrage."
             }
         },
         "results":{
