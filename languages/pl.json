@@ -5,17 +5,25 @@
                 "name": "Pokaż tekst „Sukces” lub „Porażka”",
                 "hint": "Pokazuje tekst wskazujący, czy umiejętność zakończyła się sukcesem, czy porażką z powodu płaskiego testu."
             },
-            "ignoreConcealed": {
+            "ignoreConcealed":{
                 "name": "Ignoruj stan 'Ukryty'",
                 "hint": "Jeśli ta opcja jest wybrana, moduł ignoruje stany 'Oślepiony' i 'Ukryty'."
             },
-            "ignoreGrabbed": {
+            "ignoreGrabbed":{
                 "name": "Ignoruj stan 'Złapany'",
                 "hint": "Jeśli ta opcja jest wybrana, moduł ignoruje stan 'Złapany'."
             },
-            "ignoreInvisibility": {
+            "ignoreInvisibility":{
                 "name": "Ignoruj stan Niewidzialności",
                 "hint": "Jeśli ta opcja jest wybrana, moduł ignoruje następujące stany: 'Ukryty', 'Niewidzialny', 'Niezauważony' i 'Oślepiony'."
+            },
+            "ignorePassiveActions":{
+                "name": "Wyłącz płaskie testy akcji pasywnych",
+                "hint": "Jeśli zaznaczone, moduł ignoruje test z akcji z symbolem akcji pasywnej pf2e."
+            },
+            "ignoreReactionActions":{
+                "name": "Wyłącz płaskie testy akcji reakcji",
+                "hint": "Jeśli zaznaczone, moduł ignoruje test z akcji z symbolem akcji reakcji pf2e."
             }
         },
         "results":{
