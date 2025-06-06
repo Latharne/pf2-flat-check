@@ -5,3 +5,26 @@
 .flat-check-success {
     background: #6bd36b;
 }
+
+div.pf2e.chat-card .dice-result {
+    display: flex;
+    align-items: center;
+}
+
+.dice-total.flat-check {
+    white-space: nowrap;
+}
+
+.flat-check-reroll {
+    margin-left: auto;
+    cursor: pointer;
+    padding: 0 0.25em;
+    border-radius: 3px;
+    background: var(--color-border-light-1);
+    color: var(--text-light-heading);
+}
+
+.flat-check-reroll:hover {
+    background: var(--color-border-light-2);
+    color: var(--text-light-1);
+}
