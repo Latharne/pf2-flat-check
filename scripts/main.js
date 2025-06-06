@@ -231,6 +231,10 @@ function getAttackerInfo(token, target) {
         i.slug === "laminal-fetchling" ||
         i.system?.slug === "laminal-fetchling"
     ),
+    hasMothSupportEffect: !!attacker?.items.some(i =>
+      i.type === "effect" && i.name === "Effect: Moth Support Benefit"
+    ),
+    keenEyes: !!attacker?.items?.find((i) => i.slug === "keen-eyes"),
     grabbed: !!attacker?.items?.find((i) => i.slug === "grabbed"),
     adjacent: target ? distanceBetween(token, target) <= 5 : false,
     equalOrHigherLevel: target
@@ -280,68 +284,61 @@ function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker
 }
 
 function determineCondition(conditionList, stupefyLevel, conditionMap, info, checkingAttacker, traits) {
-  let condition = "";
-  if (conditionList && conditionList.length > 0) {
-    condition = conditionList.reduce((acc, current) => {
-      let currentDC = conditionMap[current];
-      if (checkingAttacker && info.blindFight) {
-        if (current === "dazzled") currentDC = -Infinity;
-      }
-      if (!checkingAttacker) {
-        if (info.liminalFetchling) {
-          if (current === "concealed") {
-            currentDC = 3;
-          } else if (current === "undetected") {
-            currentDC = 9;
-          }
-        }
-        if (info.blindFight) {
-          if (current === "concealed") {
-            currentDC = -Infinity;
-          } else if (current === "hidden") {
-            currentDC = 5;
-          } else if (current === "invisible" || current === "undetected") {
-            if (info.adjacent && info.equalOrHigherLevel) {
-              current = "hidden";
-              currentDC = 5;
-            }
-          }
-        }
-      }
-      return conditionMap[acc] > currentDC ? acc : current;
-    });
+  if (!conditionList || conditionList.length === 0) return {};
+
+  // 1. Ursprünglich härteste Bedingung ermitteln (höchster conditionMap-DC)
+  let baseCondition = conditionList.reduce((acc, curr) => {
+    const accDC = conditionMap[acc] ?? -Infinity;
+    const currDC = conditionMap[curr] ?? -Infinity;
+    return accDC >= currDC ? acc : curr;
+  });
+
+  console.log(baseCondition);
+
+  let logicalCondition = baseCondition;
+  if (logicalCondition === "invisible" || baseCondition === "undetected") {
+    logicalCondition = "hidden";
+  }
+  // 2. DC initial setzen
+  let DC = conditionMap[logicalCondition];
+
+  // 3. Spezialfälle behandeln (z. B. stupefied-Level)
+  if (baseCondition === "stupefied" && typeof stupefyLevel === "number") {
+    DC = stupefyLevel + 5;
   }
 
-  let DC = conditionMap[condition];
-  if (condition === "stupefied") condition += ` ${stupefyLevel}`;
-  if (checkingAttacker && info.grabbed && traits?.includes("manipulate")) {
-    if (5 > DC || DC === undefined) {
-      DC = 5;
-      condition = "grabbed";
+  // 4. Reduktionen anwenden
+  if (checkingAttacker && info.blindFight && baseCondition === "dazzled") return {};
+
+  if (!checkingAttacker) {
+    if (info.liminalFetchling || info.keenEyes || info.hasMothSupportEffect) {
+      if (logicalCondition === "concealed") DC = 3;
+      if (logicalCondition === "hidden") DC = 9;
+    }
+
+    if (info.blindFight) {
+      if (baseCondition === "concealed") return {};
+      if (baseCondition === "hidden") DC = 5;
+      if ((baseCondition === "invisible" || baseCondition === "undetected") && info.adjacent && info.equalOrHigherLevel) {
+        baseCondition = "hidden";
+        DC = 5;
+      }
     }
   }
+
+  // 5. Sonderfall "grabbed" bei Angreifer und Manipulate
+  if (checkingAttacker && info.grabbed && traits?.includes("manipulate")) {
+    if (5 > DC || DC === undefined) {
+      baseCondition = "grabbed";
+      DC = 5;
+    }
+  }
+
   if (DC === -Infinity) return {};
 
-  if (info.liminalFetchling) {
-    if (condition === "concealed") DC = 3;
-    if (condition === "undetected") DC = 9;
-  }
-
-  if (info.blindFight) {
-    if (condition === "dazzled" && checkingAttacker) return {};
-    if (condition === "concealed" && !checkingAttacker) return {};
-    if (
-      (condition === "invisible" || condition === "undetected") &&
-      !checkingAttacker &&
-      info.adjacent &&
-      info.equalOrHigherLevel
-    )
-      condition = "hidden";
-    if (condition === "hidden") DC = 5;
-  }
-
-  return { condition, DC };
+  return { condition: baseCondition, DC };
 }
+
 
 function shouldIgnoreCondition(conditionName, areaAttack, ignoreConcealed, ignoreInvisibility, ignoreGrabbed) {
   return (
