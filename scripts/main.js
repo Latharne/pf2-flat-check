@@ -198,11 +198,14 @@ if (message.rolls?.some(roll => roll.options?.evaluatePersistent) || (message.is
       actor,
       user: game.users.get(userID),
     }),
+    type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+    rolls: [flatCheckRoll],
+    sound: CONFIG.sounds.dice,
     whisper: anyTargetUndetected
       ? ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
       : null,
     blind: anyTargetUndetected,
-    flags: { "pf2-flat-check": true },
+    flags: { "pf2-flat-check": true, "pf2-flat-check-dc": templateData.flatCheckDC },
   });
 });
 
@@ -391,3 +394,16 @@ function getCondition(token, target, isSpell, traits, areaAttack) {
 function usePf2ePerceptionInstead() {
   return game.modules.get("pf2e-perception")?.active && ['roll', 'cancel'].includes(game.settings.get("pf2e-perception", "flat-check"))
 }
+
+Hooks.on("renderChatMessage", (message, html) => {
+  if (!message.flags?.[moduleId]) return;
+  const rerollButton = html.find(".flat-check-reroll");
+  rerollButton.on("click", (event) => {
+    const handler =
+      game.pf2e?.Check?.rerollFromMessage ||
+      game.pf2e?.actions?.reroll;
+    if (handler) {
+      handler.call(game.pf2e, event, message);
+    }
+  });
+});

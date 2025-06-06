@@ -5,3 +5,13 @@
 .flat-check-success {
     background: #6bd36b;
 }
+
+.flat-check-reroll {
+    margin-left: 0.25em;
+    cursor: pointer;
+    color: var(--text-light-heading);
+}
+
+.flat-check-reroll:hover {
+    color: var(--text-light-1);
+}

@@ -1,12 +1,17 @@
-<div>
+<div class="pf2e chat-card">
+  <div class="card-content">
     {{#if actor.condition}}<b>{{actor.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{actor.condition}}</b>.</br>{{/if}}
     {{#each targets as |target|}}
     <b>{{target.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{target.condition}}</b> {{localize "pf2-flat-check.attacker"}}</br>
     {{/each}}
     {{localize "pf2-flat-check.FlatDC"}} <b>{{flatCheckDC}}</b>.
-</div>
-<div class="dice-roll">
-<div class="dice-result {{flatCheckRollResultClass}}">
-    <h4 class="dice-total flat-check">{{flatCheckRollResult}}</h4>
-</div>
+  </div>
+  <div class="dice-roll">
+    <div class="dice-result {{flatCheckRollResultClass}}">
+      <h4 class="dice-total flat-check">{{flatCheckRollResult}}</h4>
+      <a class="flat-check-reroll" data-action="reroll" data-tooltip="{{localize 'PF2E.reroll'}}">
+        <i class="fa-solid fa-arrows-rotate"></i>
+      </a>
+    </div>
+  </div>
 </div>
