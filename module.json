@@ -15,12 +15,12 @@
           }
     ],
     "version": "#{VERSION}#",
-    "minimumCoreVersion": "12",
-    "compatibleCoreVersion": "12",
+    "minimumCoreVersion": "13",
+    "compatibleCoreVersion": "13",
     "compatibility": {
-        "minimum": "12",
-        "verified": "12",
-        "maximum": "12"
+        "minimum": "13",
+        "verified": "13",
+        "maximum": "13"
     },
     "relationships": {
         "systems": [
@@ -29,8 +29,8 @@
                 "type": "system",
                 "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
                 "compatibility": {
-                    "minimum": "6.0.2",
-                    "verified": "6.12.4"
+                    "minimum": "7.1.0",
+                    "verified": "7.1.1"
                 }
             }
         ]

@@ -186,8 +186,8 @@ if (message.rolls?.some(roll => roll.options?.evaluatePersistent) || (message.is
     flatCheckRoll.result < templateData.flatCheckDC
       ? "flat-check-failure"
       : "flat-check-success";
-
-  const content = await renderTemplate(
+      
+  const content = await foundry.applications.handlebars.renderTemplate(
     `modules/${moduleId}/templates/flat-check.hbs`,
     templateData
   );
@@ -207,7 +207,7 @@ if (message.rolls?.some(roll => roll.options?.evaluatePersistent) || (message.is
 });
 
 function distanceBetween(token0, token1) {
-  const ray = new Ray(
+  const ray = new foundry.canvas.geometry.Ray(
     new PIXI.Point(token0?.x || 0, token0?.y || 0),
     new PIXI.Point(token1?.x || 0, token1?.y || 0)
   );
