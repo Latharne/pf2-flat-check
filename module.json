@@ -41,21 +41,27 @@
     "styles": [
         "./styles/pf2-flat-check.css"
     ],
-    "languages": [{
-    "lang":"en",
-    "name":"english",
-    "path":"languages/en.json"
-  },
-{
-  "lang":"de",
-  "name":"Deutsch",
-  "path":"languages/de.json"
-},
-    {
-  "lang":"pl",
-  "name":"Polski",
-  "path":"languages/pl.json"
-}
+    "languages": [
+        {
+        "lang":"en",
+        "name":"english",
+        "path":"languages/en.json"
+        },
+        {
+        "lang":"de",
+        "name":"Deutsch",
+        "path":"languages/de.json"
+        },
+        {
+        "lang":"pl",
+        "name":"Polski",
+        "path":"languages/pl.json"
+        },
+        {
+        "lang":"cn",
+        "name":"简体中文",
+        "path":"languages/cn.json"
+        }
     ],
     "url": "#{URL}#",
     "manifest": "#{MANIFEST}#",
