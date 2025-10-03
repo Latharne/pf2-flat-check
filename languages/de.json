@@ -17,6 +17,10 @@
                 "name": "Ignoriere Verborgen Zustände",
                 "hint": "Falls diese Option ausgewählt wurde, ignoriert das Modul die folgenden Zustände: 'Verborgen', 'Unsichtbar', 'Unentdeckt' and 'Blind'."
             },
+            "usePf2eVisionerAdapter":{
+                "name": "PF2e Visioner-Integration verwenden",
+                "hint": "Wenn ausgewählt, wendet das Modul Sichtbarkeitsanpassungen vom PF2e Visioner Modul an."
+            },
             "ignorePassiveActions":{
                 "name": "Unterdrücke Prüfung bei Passiven Fähigkeiten",
                 "hint": "Wenn ausgewählt, dass prüft das Modul ob die Aktion das Bild von einer passiven Fähigkeit hat und unterdrückt dann die Abfrage."

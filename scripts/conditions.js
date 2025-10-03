@@ -1,11 +1,29 @@
-import { moduleId, actorConditionMap, targetConditionMap } from "./constants.js";
+import { actorConditionMap, targetConditionMap } from "./constants.js";
 import { distanceBetween, getSetting } from "./utils.js";
 
-function usePf2ePerceptionInstead() {
-  return (
-    game.modules.get("pf2e-perception")?.active &&
-    ["roll", "cancel"].includes(game.settings.get("pf2e-perception", "flat-check"))
-  );
+function getPf2eVisionerModule() {
+  return game.modules.get("pf2e-visioner") ?? game.modules.get("pf2evisioner");
+}
+
+function shouldUsePf2eVisionerAdapter() {
+  if (!getPf2eVisionerModule()?.active) return false;
+  try {
+    return getSetting("usePf2eVisionerAdapter");
+  } catch (error) {
+    return true;
+  }
+}
+
+function getVisionAdapters() {
+  const adapters = [pf2eDarknessAdapter];
+  if (shouldUsePf2eVisionerAdapter()) adapters.push(pf2eVisionerAdapter);
+  return adapters;
+}
+
+function applyVisionAdapters(context) {
+  for (const adapter of getVisionAdapters()) {
+    adapter?.(context);
+  }
 }
 
 function getAttackerInfo(token, target) {
@@ -37,32 +55,30 @@ function getAttackerInfo(token, target) {
 function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker, info) {
   const currentActor = checkingAttacker ? token.actor : target.actor;
 
-  const conditions = currentActor.itemTypes.condition
-    .filter((c) => {
-      if (checkingAttacker && isSpell && c.slug === "stupefied") return true;
-      if (["hidden", "concealed", "undetected", "dazzled"].includes(c.slug) && usePf2ePerceptionInstead())
-        return false;
-      return Object.keys(conditionMap).includes(c.slug);
-    })
-    .map((c) => c.slug)
-    .sort();
+  const conditionSet = new Set(
+    currentActor.itemTypes.condition
+      .filter((c) => {
+        if (checkingAttacker && isSpell && c.slug === "stupefied") return true;
+        return Object.keys(conditionMap).includes(c.slug);
+      })
+      .map((c) => c.slug)
+  );
 
-  if (!checkingAttacker && info.blinded && !conditions.includes("hidden") && !usePf2ePerceptionInstead())
-    conditions.push("hidden");
-  if (!checkingAttacker && info.dazzled && !conditions.includes("concealed") && !usePf2ePerceptionInstead())
-    conditions.push("concealed");
+  if (!checkingAttacker && info.blinded) conditionSet.add("hidden");
+  if (!checkingAttacker && info.dazzled) conditionSet.add("concealed");
 
-  if (!checkingAttacker && game.modules.get("pf2e-darkness-effects")?.active) {
-    const attackerLowLightVision = token.actor.system.traits.senses.some((s) => s.type === "lowLightVision");
-    const targetInDimLight = currentActor.getFlag("pf2e-darkness-effects", "darknessLevel") === 1;
-    if (targetInDimLight && !attackerLowLightVision && !conditions.includes("concealed"))
-      conditions.push("concealed");
+  applyVisionAdapters({
+    token,
+    target,
+    isSpell,
+    checkingAttacker,
+    info,
+    actor: currentActor,
+    conditionMap,
+    conditionSet,
+  });
 
-    const attackerDarkvision = token.actor.system.traits.senses.some((s) => s.type === "darkvision");
-    const targetInDarkness = currentActor.getFlag("pf2e-darkness-effects", "darknessLevel") === 0;
-    if (targetInDarkness && !attackerDarkvision && !conditions.includes("hidden"))
-      conditions.push("hidden");
-  }
+  const conditions = Array.from(conditionSet).sort();
 
   let stupefyLevel;
   if (conditions.includes("stupefied")) {
@@ -166,4 +182,42 @@ export function getCondition(token, target, isSpell, traits, areaAttack) {
     return {};
   }
   return { conditionName, DC };
+}
+
+function pf2eDarknessAdapter({ token, actor, checkingAttacker, conditionSet }) {
+  if (checkingAttacker) return;
+  if (!game.modules.get("pf2e-darkness-effects")?.active) return;
+
+  const attackerLowLightVision = token.actor.system.traits.senses.some((s) => s.type === "lowLightVision");
+  const targetInDimLight = actor.getFlag("pf2e-darkness-effects", "darknessLevel") === 1;
+  if (targetInDimLight && !attackerLowLightVision) {
+    conditionSet.add("concealed");
+  }
+
+  const attackerDarkvision = token.actor.system.traits.senses.some((s) => s.type === "darkvision");
+  const targetInDarkness = actor.getFlag("pf2e-darkness-effects", "darknessLevel") === 0;
+  if (targetInDarkness && !attackerDarkvision) {
+    conditionSet.add("hidden");
+  }
+}
+
+function pf2eVisionerAdapter(context) {
+  const module = getPf2eVisionerModule();
+  if (!module?.active) return;
+  if (context.checkingAttacker || !context.target || !context.token) return;
+
+  const api = module.api;
+  const observerTokenID = context.token.id;
+  const targetTokenID = context.target.id;
+
+  const visibility =
+    observerTokenID && targetTokenID
+      ? api?.getVisibility?.(observerTokenID, targetTokenID)
+      : null;
+
+  if (visibility === "concealed" || visibility === "hidden" || visibility === "undetected") {
+    context.conditionSet.add(visibility);
+  }
+
+  api?.applyFlatCheckAdjustments?.(context);
 }

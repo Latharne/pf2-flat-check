@@ -17,6 +17,10 @@
                 "name": "Ignoruj stan Niewidzialności",
                 "hint": "Jeśli ta opcja jest wybrana, moduł ignoruje następujące stany: 'Ukryty', 'Niewidzialny', 'Niezauważony' i 'Oślepiony'."
             },
+            "usePf2eVisionerAdapter":{
+                "name": "Użyj integracji PF2e Visioner",
+                "hint": "Jeśli ta opcja jest zaznaczona, moduł zastosuje modyfikacje widoczności dostarczane przez moduł PF2e Visioner."
+            },
             "ignorePassiveActions":{
                 "name": "Wyłącz płaskie testy akcji pasywnych",
                 "hint": "Jeśli zaznaczone, moduł ignoruje test z akcji z symbolem akcji pasywnej pf2e."
