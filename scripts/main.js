@@ -35,6 +35,14 @@ function registerSettings() {
     type: Boolean,
     default: false,
   });
+  game.settings.register(moduleId, "usePf2eVisionerAdapter", {
+    name: `pf2-flat-check.settings.usePf2eVisionerAdapter.name`,
+    hint: `pf2-flat-check.settings.usePf2eVisionerAdapter.hint`,
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
   game.settings.register(moduleId, "ignorePassiveActions", {
     name: `pf2-flat-check.settings.ignorePassiveActions.name`,
     hint: `pf2-flat-check.settings.ignorePassiveActions.hint`,
@@ -139,7 +147,12 @@ function prepareFlatCheckData(message, token, actor, item, userID) {
     });
 
     if (tDC > templateData.flatCheckDC) templateData.flatCheckDC = tDC;
-    if (target.actor.itemTypes?.condition.map((n) => n.name)?.includes("Undetected")) anyTargetUndetected = true;
+    if (
+      tCondition === "Undetected" ||
+      target.actor.itemTypes?.condition.map((n) => n.name)?.includes("Undetected")
+    ) {
+      anyTargetUndetected = true;
+    }
   }
 
   return { templateData, anyTargetUndetected };
