@@ -64,6 +64,7 @@ function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker
       .map((c) => c.slug)
   );
 
+  if (checkingAttacker && info.grabbed) conditionSet.add("grabbed");
   if (!checkingAttacker && info.blinded) conditionSet.add("hidden");
   if (!checkingAttacker && info.dazzled) conditionSet.add("concealed");
 
