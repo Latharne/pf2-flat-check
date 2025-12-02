@@ -17,10 +17,6 @@
                 "hint": "若勾选，模组将忽略以下状态：藏匿，隐形，无踪和目盲的纯骰检定。",
                 "name": "忽略附带藏匿状态的效果"
             },
-            "usePf2eVisionerAdapter": {
-                "name": "使用PF2e Visioner整合",
-                "hint": "若勾选，模组会应用由PF2e Visioner模组提供的可见性调整。"
-            },
             "ignoreReactionActions": {
                 "name": "阻止反应动作纯骰检定",
                 "hint": "若勾选，模组将忽略来自带有pf2e反应动作标志的动作的测试。"
@@ -28,6 +24,10 @@
             "ignorePassiveActions": {
                 "name": "阻止被动动作纯骰检定",
                 "hint": "若勾选，模组将忽略来自带有pf2e被动动作标志的动作的测试。"
+            },
+            "usePf2eVisionerAdapter": {
+                "name": "使用PF2e Visioner集成",
+                "hint": "若启用，模组将应用PF2e Visioner提供的能见度调整。"
             }
         },
         "results": {
