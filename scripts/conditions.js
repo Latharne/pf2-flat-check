@@ -91,9 +91,16 @@ function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker
 }
 
 function determineCondition(conditionList, stupefyLevel, conditionMap, info, checkingAttacker, traits) {
-  if (!conditionList || conditionList.length === 0) return {};
+  if (!conditionList) return {};
 
-  let baseCondition = conditionList.reduce((acc, curr) => {
+  let relevantConditions = conditionList;
+  if (checkingAttacker && !traits?.includes("manipulate")) {
+    relevantConditions = conditionList.filter((condition) => condition !== "grabbed");
+  }
+
+  if (relevantConditions.length === 0) return {};
+
+  let baseCondition = relevantConditions.reduce((acc, curr) => {
     const accDC = conditionMap[acc] ?? -Infinity;
     const currDC = conditionMap[curr] ?? -Infinity;
     return accDC >= currDC ? acc : curr;
