@@ -63,9 +63,37 @@ function registerSettings() {
 
 Hooks.once("init", registerSettings);
 
+function getSystemFlags(message) {
+  const pf2e = message?.flags?.pf2e;
+  const sf2e = message?.flags?.sf2e;
+  if (pf2e?.context || pf2e?.origin) return pf2e;
+  if (sf2e?.context || sf2e?.origin) return sf2e;
+  return pf2e ?? sf2e ?? {};
+}
+
+function getMessageContext(message) {
+  return getSystemFlags(message)?.context ?? {};
+}
+
+function getMessageOrigin(message) {
+  return getSystemFlags(message)?.origin ?? {};
+}
+
+function getGameSetting(namespace, key, fallback = null) {
+  const fullKey = `${namespace}.${key}`;
+  if (game.settings?.settings?.has(fullKey)) {
+    try {
+      return game.settings.get(namespace, key);
+    } catch (error) {
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
 function getItemFromMessage(message, actor) {
   let { item } = message;
-  const originUUID = message.flags.pf2e?.origin?.uuid;
+  const originUUID = getMessageOrigin(message)?.uuid;
   if (!item && !message.isDamageRoll && originUUID?.match(/Item.(\w+)/) && RegExp.$1 === "xxPF2ExUNARMEDxx") {
     const actionIds = originUUID.match(/Item.(\w+)/);
     if (actionIds && actionIds[1]) {
@@ -79,7 +107,7 @@ function getItemFromMessage(message, actor) {
 }
 
 function shouldHandleMessage(message, item) {
-  const domains = message.flags?.pf2e?.context?.domains || [];
+  const domains = getMessageContext(message)?.domains || [];
   if (domains.includes("damage") || domains.includes("attack-damage") || domains.includes("damage-received")) {
     return false;
   }
@@ -100,25 +128,32 @@ function shouldHandleMessage(message, item) {
 }
 
 function detectAreaAttack(message) {
-  const rollOptions = message.flags?.pf2e?.origin?.rollOptions || [];
+  const rollOptions = getMessageOrigin(message)?.rollOptions || [];
   return (
     rollOptions.includes("area-effect") ||
     rollOptions.includes("area-damage") ||
     rollOptions.includes("aura") ||
     message.content.includes('data-pf2-effect-area') ||
-    message.flags?.pf2e?.context?.type === "self-effect"
+    getMessageContext(message)?.type === "self-effect"
   );
+}
+
+function getContextOptions(message) {
+  const options = getMessageContext(message)?.options ?? [];
+  return Array.isArray(options) ? options : [];
 }
 
 function prepareFlatCheckData(message, token, actor, item, userID) {
   const areaAttack = detectAreaAttack(message);
+  const contextOptions = getContextOptions(message);
   const templateData = {};
   const { conditionName, DC } = getCondition(
     token,
     null,
     item.type === "spell",
     item.system.traits.value,
-    areaAttack
+    areaAttack,
+    contextOptions
   );
   templateData.flatCheckDC = DC ?? 0;
   templateData.actor = {
@@ -136,11 +171,12 @@ function prepareFlatCheckData(message, token, actor, item, userID) {
       target,
       item.type === "spell",
       null,
-      areaAttack
+      areaAttack,
+      contextOptions
     );
     if (!tCondition) continue;
 
-    const visibility = game.settings.get("pf2e", "metagame_tokenSetsNameVisibility");
+    const visibility = getGameSetting("pf2e", "metagame_tokenSetsNameVisibility", false);
     templateData.targets.push({
       name: visibility && [0, 20, 40].includes(target.document.displayName) ? "Target " + targetCount++ : target.name,
       condition: tCondition,

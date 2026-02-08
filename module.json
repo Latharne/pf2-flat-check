@@ -1,5 +1,4 @@
 {
-    "name": "pf2-flat-check",
     "id": "pf2-flat-check",
     "title": "PF2e Flat Check",
     "description": "PF2e Flat Check implements automatic Flat Checks when characters make weapon strikes or cast spells.",
@@ -15,8 +14,6 @@
           }
     ],
     "version": "#{VERSION}#",
-    "minimumCoreVersion": "13",
-    "compatibleCoreVersion": "13",
     "compatibility": {
         "minimum": "13",
         "verified": "13",
@@ -30,7 +27,16 @@
                 "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
                 "compatibility": {
                     "minimum": "7.1.0",
-                    "verified": "7.5.2"
+                    "verified": "7.9.0"
+                }
+            },
+            {
+                "id": "sf2e",
+                "type": "system",
+                "manifest": "https://raw.githubusercontent.com/foundryvtt/pf2e/v13-dev/system.sf2e.json",
+                "compatibility": {
+                    "minimum": "0.0.1",
+                    "verified": "0.0.4"
                 }
             }
         ]

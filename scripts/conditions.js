@@ -52,17 +52,64 @@ function getAttackerInfo(token, target) {
   return info;
 }
 
-function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker, info) {
+function isRelevantConditionSlug(slug, conditionMap, checkingAttacker, isSpell) {
+  if (checkingAttacker && isSpell && slug === "stupefied") return true;
+  return Object.prototype.hasOwnProperty.call(conditionMap, slug);
+}
+
+function getActorConditionItems(actor) {
+  const items = [];
+  if (Array.isArray(actor?.itemTypes?.condition)) items.push(...actor.itemTypes.condition);
+  if (Array.isArray(actor?.conditions?.active)) items.push(...actor.conditions.active);
+  const bySlug = actor?.conditions?.bySlug;
+  if (bySlug && typeof bySlug === "object") {
+    const values = typeof bySlug.values === "function" ? Array.from(bySlug.values()) : Object.values(bySlug);
+    for (const condition of values) {
+      if (condition?.active) items.push(condition);
+    }
+  }
+  return items;
+}
+
+function getConditionValue(condition) {
+  if (typeof condition?.value === "number") return condition.value;
+  const systemValue = condition?.system?.value;
+  if (typeof systemValue === "number") return systemValue;
+  if (typeof systemValue?.value === "number") return systemValue.value;
+  return undefined;
+}
+
+function addRollOptionConditions(conditionSet, rollOptions, conditionMap, checkingAttacker, isSpell) {
+  if (!Array.isArray(rollOptions)) return;
+  for (const option of rollOptions) {
+    if (typeof option !== "string") continue;
+    const splitIndex = option.indexOf(":condition:");
+    if (splitIndex === -1) continue;
+    const targetPrefix = option.slice(0, splitIndex);
+    const slug = option.slice(splitIndex + ":condition:".length);
+    if (!slug) continue;
+    if (checkingAttacker && !["self", "attacker"].includes(targetPrefix)) continue;
+    if (!checkingAttacker && targetPrefix !== "target") continue;
+    if (isRelevantConditionSlug(slug, conditionMap, checkingAttacker, isSpell)) {
+      conditionSet.add(slug);
+    }
+  }
+}
+
+function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker, info, rollOptions) {
   const currentActor = checkingAttacker ? token.actor : target.actor;
 
-  const conditionSet = new Set(
-    currentActor.itemTypes.condition
-      .filter((c) => {
-        if (checkingAttacker && isSpell && c.slug === "stupefied") return true;
-        return Object.keys(conditionMap).includes(c.slug);
-      })
-      .map((c) => c.slug)
-  );
+  const conditionItems = getActorConditionItems(currentActor);
+  const conditionSet = new Set();
+  for (const condition of conditionItems) {
+    const slug = condition?.slug;
+    if (!slug) continue;
+    if (isRelevantConditionSlug(slug, conditionMap, checkingAttacker, isSpell)) {
+      conditionSet.add(slug);
+    }
+  }
+
+  addRollOptionConditions(conditionSet, rollOptions, conditionMap, checkingAttacker, isSpell);
 
   if (checkingAttacker && info.grabbed) conditionSet.add("grabbed");
   if (!checkingAttacker && info.blinded) conditionSet.add("hidden");
@@ -83,7 +130,7 @@ function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker
 
   let stupefyLevel;
   if (conditions.includes("stupefied")) {
-    stupefyLevel = currentActor.itemTypes.condition.find((c) => c.slug === "stupefied")?.value;
+    stupefyLevel = getConditionValue(conditionItems.find((c) => c.slug === "stupefied"));
     if (stupefyLevel) conditionMap["stupefied"] = stupefyLevel + 5;
   }
 
@@ -156,7 +203,7 @@ function shouldIgnoreCondition(conditionName, areaAttack, ignoreConcealed, ignor
   );
 }
 
-export function getCondition(token, target, isSpell, traits, areaAttack) {
+export function getCondition(token, target, isSpell, traits, areaAttack, rollOptions) {
   const ignoreConcealed = getSetting("ignoreConcealed");
   const ignoreGrabbed = getSetting("ignoreGrabbed");
   const ignoreInvisibility = getSetting("ignoreInvisibility");
@@ -171,7 +218,8 @@ export function getCondition(token, target, isSpell, traits, areaAttack) {
     isSpell,
     conditionMap,
     checkingAttacker,
-    info
+    info,
+    rollOptions
   );
 
   const { condition, DC } = determineCondition(
