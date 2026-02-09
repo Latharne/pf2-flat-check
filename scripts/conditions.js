@@ -97,7 +97,8 @@ function addRollOptionConditions(conditionSet, rollOptions, conditionMap, checki
 }
 
 function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker, info, rollOptions) {
-  const currentActor = checkingAttacker ? token.actor : target.actor;
+  const currentActor = checkingAttacker ? token?.actor : target?.actor;
+  if (!currentActor) return { conditions: [], stupefyLevel: undefined };
 
   const conditionItems = getActorConditionItems(currentActor);
   const conditionSet = new Set();
@@ -197,7 +198,7 @@ function shouldIgnoreCondition(conditionName, areaAttack, ignoreConcealed, ignor
   return (
     ((conditionName === "Concealed" || conditionName === "Dazzled") &&
       (ignoreConcealed || areaAttack)) ||
-    ((conditionName === "Hidden" || conditionName === "Invisible") &&
+    ((conditionName === "Hidden" || conditionName === "Invisible" || conditionName === "Undetected") &&
       (ignoreInvisibility || areaAttack)) ||
     (conditionName === "Grabbed" && ignoreGrabbed)
   );
@@ -243,14 +244,17 @@ export function getCondition(token, target, isSpell, traits, areaAttack, rollOpt
 function pf2eDarknessAdapter({ token, actor, checkingAttacker, conditionSet }) {
   if (checkingAttacker) return;
   if (!game.modules.get("pf2e-darkness-effects")?.active) return;
+  if (!actor) return;
+  const attackerSenses = token?.actor?.system?.traits?.senses;
+  if (!Array.isArray(attackerSenses)) return;
 
-  const attackerLowLightVision = token.actor.system.traits.senses.some((s) => s.type === "lowLightVision");
+  const attackerLowLightVision = attackerSenses.some((s) => s.type === "lowLightVision");
   const targetInDimLight = actor.getFlag("pf2e-darkness-effects", "darknessLevel") === 1;
   if (targetInDimLight && !attackerLowLightVision) {
     conditionSet.add("concealed");
   }
 
-  const attackerDarkvision = token.actor.system.traits.senses.some((s) => s.type === "darkvision");
+  const attackerDarkvision = attackerSenses.some((s) => s.type === "darkvision");
   const targetInDarkness = actor.getFlag("pf2e-darkness-effects", "darknessLevel") === 0;
   if (targetInDarkness && !attackerDarkvision) {
     conditionSet.add("hidden");

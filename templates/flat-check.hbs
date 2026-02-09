@@ -1,7 +1,7 @@
 <div>
-    {{#if actor.condition}}<b>{{actor.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{actor.condition}}</b>.</br>{{/if}}
+    {{#if actor.condition}}<b>{{actor.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{actor.condition}}</b>.<br>{{/if}}
     {{#each targets as |target|}}
-    <b>{{target.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{target.condition}}</b> {{localize "pf2-flat-check.attacker"}}</br>
+    <b>{{target.name}}</b> {{localize "pf2-flat-check.is"}} <b>{{target.condition}}</b> {{localize "pf2-flat-check.attacker"}}<br>
     {{/each}}
     {{localize "pf2-flat-check.FlatDC"}} <b>{{flatCheckDC}}</b>.
 </div>

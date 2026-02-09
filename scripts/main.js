@@ -94,14 +94,15 @@ function getGameSetting(namespace, key, fallback = null) {
 function getItemFromMessage(message, actor) {
   let { item } = message;
   const originUUID = getMessageOrigin(message)?.uuid;
-  if (!item && !message.isDamageRoll && originUUID?.match(/Item.(\w+)/) && RegExp.$1 === "xxPF2ExUNARMEDxx") {
-    const actionIds = originUUID.match(/Item.(\w+)/);
-    if (actionIds && actionIds[1]) {
-      item =
-        actor?.system?.actions
-          .filter((atk) => atk?.type === "strike")
-          .filter((a) => a.item.id === actionIds[1]) || null;
-    }
+  const originItemMatch = typeof originUUID === "string" ? originUUID.match(/Item\.([A-Za-z0-9]+)/) : null;
+  const originItemId = originItemMatch?.[1];
+
+  // PF2E's synthetic unarmed strike messages can omit message.item.
+  // Resolve the strike item from actor actions so grabbed/manipulate handling still works.
+  if (!item && !message.isDamageRoll && originItemId === "xxPF2ExUNARMEDxx") {
+    item =
+      actor?.system?.actions?.find((action) => action?.type === "strike" && action?.item?.id === originItemId)?.item ??
+      null;
   }
   return item;
 }
@@ -162,7 +163,7 @@ function prepareFlatCheckData(message, token, actor, item, userID) {
   };
 
   templateData.targets = [];
-  const targets = Array.from(game.users.get(userID).targets);
+  const targets = Array.from(game.users.get(userID)?.targets ?? []);
   let anyTargetUndetected = false;
   let targetCount = 1;
   for (const target of targets) {
@@ -197,7 +198,8 @@ function prepareFlatCheckData(message, token, actor, item, userID) {
 async function showFlatCheckResult(templateData, userID, anyTargetUndetected, token, actor) {
   const flatCheckRoll = new Roll("1d20");
   await flatCheckRoll.evaluate();
-  if (game.dice3d) await game.dice3d.showForRoll(flatCheckRoll, game.users.get(userID), true);
+  const rollingUser = game.users.get(userID) ?? game.user;
+  if (game.dice3d) await game.dice3d.showForRoll(flatCheckRoll, rollingUser, true);
 
   templateData.flatCheckRollResult = !getSetting("hideRollValue")
     ? flatCheckRoll.result
@@ -217,7 +219,7 @@ async function showFlatCheckResult(templateData, userID, anyTargetUndetected, to
     speaker: ChatMessage.getSpeaker({
       token,
       actor,
-      user: game.users.get(userID),
+      user: rollingUser,
     }),
     whisper: anyTargetUndetected ? ChatMessage.getWhisperRecipients("GM").map((u) => u.id) : null,
     blind: anyTargetUndetected,
@@ -226,7 +228,8 @@ async function showFlatCheckResult(templateData, userID, anyTargetUndetected, to
 }
 
 Hooks.on("createChatMessage", async (message, data, userID) => {
-  if (game.user.id !== game.users.find((u) => u.isGM && u.active).id) return;
+  const activeGM = game.users.find((u) => u.isGM && u.active);
+  if (!activeGM || game.user.id !== activeGM.id) return;
 
   const actor = message?.actor ?? game.actors.get(message?.speaker?.actor);
   const token = message?.token ?? game.canvas.tokens.get(message?.speaker?.token);
