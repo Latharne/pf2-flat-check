@@ -1,5 +1,6 @@
 import { actorConditionMap, targetConditionMap } from "./constants.js";
 import { distanceBetween, getSetting } from "./utils.js";
+import { applyEffectRules } from "./effectRules.js";
 
 function getPf2eVisionerModule() {
   return game.modules.get("pf2e-visioner") ?? game.modules.get("pf2evisioner");
@@ -20,9 +21,9 @@ function getVisionAdapters() {
   return adapters;
 }
 
-function applyVisionAdapters(context) {
+async function applyVisionAdapters(context) {
   for (const adapter of getVisionAdapters()) {
-    adapter?.(context);
+    await adapter?.(context);
   }
 }
 
@@ -96,7 +97,7 @@ function addRollOptionConditions(conditionSet, rollOptions, conditionMap, checki
   }
 }
 
-function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker, info, rollOptions) {
+async function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker, info, rollOptions) {
   const currentActor = checkingAttacker ? token?.actor : target?.actor;
   if (!currentActor) return { conditions: [], stupefyLevel: undefined };
 
@@ -116,7 +117,7 @@ function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker
   if (!checkingAttacker && info.blinded) conditionSet.add("hidden");
   if (!checkingAttacker && info.dazzled) conditionSet.add("concealed");
 
-  applyVisionAdapters({
+  await applyVisionAdapters({
     token,
     target,
     isSpell,
@@ -126,6 +127,8 @@ function gatherConditions(token, target, isSpell, conditionMap, checkingAttacker
     conditionMap,
     conditionSet,
   });
+
+  applyEffectRules(conditionSet, token, target);
 
   const conditions = Array.from(conditionSet).sort();
 
@@ -204,7 +207,7 @@ function shouldIgnoreCondition(conditionName, areaAttack, ignoreConcealed, ignor
   );
 }
 
-export function getCondition(token, target, isSpell, traits, areaAttack, rollOptions) {
+export async function getCondition(token, target, isSpell, traits, areaAttack, rollOptions) {
   const ignoreConcealed = getSetting("ignoreConcealed");
   const ignoreGrabbed = getSetting("ignoreGrabbed");
   const ignoreInvisibility = getSetting("ignoreInvisibility");
@@ -213,7 +216,7 @@ export function getCondition(token, target, isSpell, traits, areaAttack, rollOpt
   const conditionMap = checkingAttacker ? { ...actorConditionMap } : targetConditionMap;
   const info = getAttackerInfo(token, target);
 
-  const { conditions, stupefyLevel } = gatherConditions(
+  const { conditions, stupefyLevel } = await gatherConditions(
     token,
     target,
     isSpell,
@@ -238,6 +241,7 @@ export function getCondition(token, target, isSpell, traits, areaAttack, rollOpt
   if (shouldIgnoreCondition(conditionName, areaAttack, ignoreConcealed, ignoreInvisibility, ignoreGrabbed)) {
     return {};
   }
+
   return { conditionName, DC };
 }
 
@@ -261,19 +265,81 @@ function pf2eDarknessAdapter({ token, actor, checkingAttacker, conditionSet }) {
   }
 }
 
-function pf2eVisionerAdapter(context) {
+function getGameSetting(namespace, key, fallback = null) {
+  const fullKey = `${namespace}.${key}`;
+  if (game.settings?.settings?.has(fullKey)) {
+    try {
+      return game.settings.get(namespace, key);
+    } catch (error) {
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
+function normalizeVisionerVisibility(visibility) {
+  if (Array.isArray(visibility)) {
+    visibility =
+      visibility.find((entry) => typeof entry === "string" && entry.length > 0) ??
+      visibility[0] ??
+      null;
+  }
+
+  if (typeof visibility !== "string") return null;
+  return visibility.toLowerCase();
+}
+
+async function getPf2eVisionerVisibility(api, observerToken, targetToken) {
+  if (!observerToken || !targetToken) return null;
+
+  const manualVisibility = normalizeVisionerVisibility(
+    api?.getVisibility?.(observerToken.id, targetToken.id) ??
+    api?.getVisibility?.(observerToken, targetToken) ??
+    api?.getVisibilityBetween?.(observerToken, targetToken) ??
+    window.visioneerApi?.getVisibility?.(observerToken.id, targetToken.id) ??
+    window.visioneerApi?.getVisibility?.(observerToken, targetToken) ??
+    null
+  );
+
+  if (manualVisibility && !["observed", "avs"].includes(manualVisibility)) {
+    return manualVisibility;
+  }
+
+  if (!getGameSetting("pf2e-visioner", "autoVisibilityEnabled", false)) {
+    return manualVisibility === "avs" ? null : manualVisibility;
+  }
+
+  const autoVisibilitySystem = window.pf2eVisioner?.services?.autoVisibilitySystem;
+  if (typeof autoVisibilitySystem?.calculateVisibilityWithOverrides === "function") {
+    try {
+      const visibility = normalizeVisionerVisibility(
+        await autoVisibilitySystem.calculateVisibilityWithOverrides(observerToken, targetToken)
+      );
+      if (visibility) return visibility;
+    } catch {
+    }
+  }
+
+  if (typeof api?.autoVisibility?.calculateVisibility === "function") {
+    try {
+      const visibility = normalizeVisionerVisibility(
+        await api.autoVisibility.calculateVisibility(observerToken, targetToken)
+      );
+      if (visibility) return visibility;
+    } catch {
+    }
+  }
+
+  return manualVisibility === "avs" ? null : manualVisibility;
+}
+
+async function pf2eVisionerAdapter(context) {
   const module = getPf2eVisionerModule();
   if (!module?.active) return;
   if (context.checkingAttacker || !context.target || !context.token) return;
 
   const api = module.api;
-  const observerTokenID = context.token.id;
-  const targetTokenID = context.target.id;
-
-  const visibility =
-    observerTokenID && targetTokenID
-      ? api?.getVisibility?.(observerTokenID, targetTokenID)
-      : null;
+  const visibility = await getPf2eVisionerVisibility(api, context.token, context.target);
 
   if (visibility === "concealed" || visibility === "hidden" || visibility === "undetected") {
     context.conditionSet.add(visibility);

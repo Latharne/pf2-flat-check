@@ -15,9 +15,9 @@
     ],
     "version": "#{VERSION}#",
     "compatibility": {
-        "minimum": "13",
-        "verified": "13",
-        "maximum": "13"
+        "minimum": "14",
+        "verified": "14",
+        "maximum": "14"
     },
     "relationships": {
         "systems": [
@@ -26,8 +26,8 @@
                 "type": "system",
                 "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
                 "compatibility": {
-                    "minimum": "7.1.0",
-                    "verified": "7.9.0"
+                    "minimum": "8.0.0",
+                    "verified": "8.0.2"
                 }
             },
             {
@@ -35,8 +35,8 @@
                 "type": "system",
                 "manifest": "https://raw.githubusercontent.com/foundryvtt/pf2e/v13-dev/system.sf2e.json",
                 "compatibility": {
-                    "minimum": "0.0.1",
-                    "verified": "0.0.4"
+                    "minimum": "1.0.0",
+                    "verified": "1.0.2"
                 }
             }
         ]
@@ -71,5 +71,6 @@
     ],
     "url": "#{URL}#",
     "manifest": "#{MANIFEST}#",
-    "download": "#{DOWNLOAD}#"
+    "download": "#{DOWNLOAD}#",
+    "flags": {}
 }
